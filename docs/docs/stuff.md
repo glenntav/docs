@@ -1,2 +1,4 @@
 # sdmx-core intro 
-Som introductory stuff about sdmx-core
+Some introductory stuff about sdmx-core
+New stuff for v0.2.0
+
