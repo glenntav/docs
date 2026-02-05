@@ -1,0 +1,56 @@
+name: Delete a documentation version (mike)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Docs version to delete (e.g. v2.4.7)"
+        required: true
+        type: string
+      confirm:
+        description: 'Type "delete" to confirm'
+        required: true
+        type: string
+
+permissions:
+  contents: write  # needed to push to gh-pages
+
+jobs:
+  delete-docs-version:
+    # Simple guardrail so someone doesn't misclick
+    if: github.event.inputs.confirm == 'delete'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install docs dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs-material mike
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Delete docs version with mike
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          echo "Deleting docs version: $VERSION"
+          mike delete --config-file docs/mkdocs.yml --push "$VERSION"
+
+      # Optional: ensure the site root still points at something valid
+      # (useful if you delete the current default / latest)
+      - name: Re-set default to latest (optional safety)
+        run: |
+          mike set-default --config-file docs/mkdocs.yml --push latest
