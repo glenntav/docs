@@ -1,0 +1,7 @@
+site_name: Product docs 
+site_url: https://glenntav.github.io/docs/ 
+theme:
+  name: material
+extra:
+  version:
+    provider: mike
